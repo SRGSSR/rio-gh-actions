@@ -9,7 +9,8 @@ try {
 
     const octokit = github.getOctokit(githubToken);
     const { issue } = github.context;
-    console.log(github.context);
+    console.log({ context: github.context });
+    console.log({ issue });
     const [{ data: pullRequest }, { data: reviewComments }] = await Promise.all(
       [
         octokit.rest.pulls.get({
@@ -25,8 +26,8 @@ try {
       ]
     );
 
-    console.log(pullRequest);
-    console.log(reviewComments);
+    console.log({ pullRequest });
+    console.log({ reviewComments });
   }
   run();
 } catch (error) {
