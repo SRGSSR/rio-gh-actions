@@ -8,18 +8,21 @@ try {
 
     const octokit = github.getOctokit(githubToken);
     const { issue } = github.context;
-    const [{ data: pullRequest }, {data: reviewComments}] = await Promise.all([
-      octokit.rest.pulls.get({
-        owner: issue.owner,
-        repo: issue.repo,
-        pull_number: issue.number,
-      }),
-      octokit.rest.pulls.listReviewComments({
-        owner: issue.owner,
-        repo: issue.repo,
-        pull_number: issue.number,
-      }),
-    ]);
+    console.log(github.context);
+    const [{ data: pullRequest }, { data: reviewComments }] = await Promise.all(
+      [
+        octokit.rest.pulls.get({
+          owner: issue.owner,
+          repo: issue.repo,
+          pull_number: issue.number,
+        }),
+        octokit.rest.pulls.listReviewComments({
+          owner: issue.owner,
+          repo: issue.repo,
+          pull_number: issue.number,
+        }),
+      ]
+    );
 
     console.log(pullRequest);
     console.log(reviewComments);
