@@ -1,6 +1,6 @@
 {
   "name": "rio-clean-dev-releases-action",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Clean dev releases from merged PRs",
   "main": "dist/index.js",
   "repository": "git@github.com:SRGSSR/rio-clean-dev-releases-action.git",
