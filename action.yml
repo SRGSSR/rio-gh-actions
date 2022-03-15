@@ -1,0 +1,12 @@
+name: 'Clean dev releases'
+description: 'Clean dev releases from a merged PR'
+inputs:
+  GITHUB_TOKEN:
+    description: 'The Github Secret Token'
+    required: true
+  PACKAGES_TOKEN:
+    description: 'Token with right to delete packages'
+    required: true
+runs:
+  using: 'node16'
+  main: 'index.js'
