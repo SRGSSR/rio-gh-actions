@@ -11,23 +11,21 @@ try {
     const { issue } = github.context;
     console.log({ context: github.context });
     console.log({ issue });
-    const [{ data: pullRequest }, { data: reviewComments }] = await Promise.all(
-      [
-        octokit.rest.pulls.get({
-          owner: issue.owner,
-          repo: issue.repo,
-          pull_number: issue.number,
-        }),
-        octokit.rest.pulls.listReviewComments({
-          owner: issue.owner,
-          repo: issue.repo,
-          pull_number: issue.number,
-        }),
-      ]
-    );
+    const [{ data: pullRequest }, { data: comments }] = await Promise.all([
+      octokit.rest.pulls.get({
+        owner: issue.owner,
+        repo: issue.repo,
+        pull_number: issue.number,
+      }),
+      octokit.rest.issues.listComments({
+        owner: issue.owner,
+        repo: issue.repo,
+        issue_number: issue.number,
+      }),
+    ]);
 
     console.log({ pullRequest });
-    console.log({ reviewComments });
+    console.log({ comments });
   }
   run();
 } catch (error) {
