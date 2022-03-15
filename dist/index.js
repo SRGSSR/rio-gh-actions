@@ -8477,7 +8477,11 @@ try {
   async function run() {
     const githubToken = core.getInput("GITHUB_TOKEN");
     const packagesToken = core.getInput("PACKAGES_TOKEN");
-    console.log({ githubToken, packagesToken, packagesTokenMissing: !packagesToken });
+    console.log({
+      githubToken,
+      packagesToken,
+      packagesTokenMissing: !packagesToken,
+    });
 
     const octokit = github.getOctokit(githubToken);
     const { issue } = github.context;
@@ -8502,13 +8506,23 @@ try {
     console.log({ versionsToDelete });
 
     await Promise.all(
-      versionsToDelete.map((v) =>
-        octokit.rest.packages.deletePackageVersionForOrg({
-          package_type: "npm",
-          package_name: issue.repo,
-          org: issue.owner,
-          package_version_id: v,
-        })
+      versionsToDelete.map((version) =>
+        octokit.rest.packages
+          .getPackageVersionForOrganization({
+            package_type: "npm",
+            package_name: issue.repo,
+            org: issue.owner,
+            package_version_id: version,
+          })
+          .then(({ data: package }) => {
+            console.log(`Deleting version ${version}/${package.id} ...`);
+            return octokit.rest.packages.deletePackageVersionForOrg({
+              package_type: "npm",
+              package_name: issue.repo,
+              org: issue.owner,
+              package_version_id: package.id,
+            });
+          })
       )
     );
   }
