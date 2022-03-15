@@ -25,7 +25,7 @@ try {
       }
     });
 
-    console.log({ versionNamesToDelete });
+    console.debug("ℹ️", { versionNamesToDelete });
 
     if (!versionNamesToDelete.length) return;
 
@@ -41,7 +41,7 @@ try {
       versionNamesToDelete.map((versionName) => {
         const foundVersion = allVersions.find((v) => v.name === versionName);
         if (!foundVersion) {
-          console.log(`Version with name ${versionName} not found.`);
+          console.error(`🤔 Version with name ${versionName} not found.`);
           return;
         }
         const versionStr = `${versionName}/${foundVersion.id}`;
@@ -53,10 +53,13 @@ try {
             package_version_id: foundVersion.id,
           })
           .then(() => {
-            console.log(`${versionStr} deleted! :)`);
+            console.debug(`✅ ${versionStr} deleted!`);
           })
           .catch((err) => {
-            console.log(`Can't delete version ${versionStr} :(`, err);
+            console.error(
+              `🔴 Can't delete version ${versionStr}.`,
+              JSON.stringify(err)
+            );
           });
       })
     );
