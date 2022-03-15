@@ -6,12 +6,6 @@ const REGEX = /(0\.0\.0-dev\.([a-zA-Z0-9)]{7}))/g;
 try {
   async function run() {
     const githubToken = core.getInput("GITHUB_TOKEN");
-    const packagesToken = core.getInput("PACKAGES_TOKEN");
-    console.log({
-      githubToken,
-      packagesToken,
-      packagesTokenMissing: !packagesToken,
-    });
 
     const octokit = github.getOctokit(githubToken);
     const { issue } = github.context;
@@ -21,9 +15,7 @@ try {
       repo: issue.repo,
       issue_number: issue.number,
     });
-
     const comments = commentsQuery.data.map((item) => item.body);
-    console.log({ comments });
 
     const versionNamesToDelete: string[] = [];
     comments.forEach((c) => {
@@ -52,13 +44,20 @@ try {
           console.log(`Version with name ${versionName} not found.`);
           return;
         }
-        console.log(`Deleting version ${versionName}/${foundVersion.id} ...`);
-        return octokit.rest.packages.deletePackageVersionForOrg({
-          package_type: "npm",
-          package_name: issue.repo,
-          org: issue.owner,
-          package_version_id: foundVersion.id,
-        });
+        const versionStr = `${versionName}/${foundVersion.id}`;
+        return octokit.rest.packages
+          .deletePackageVersionForOrg({
+            package_type: "npm",
+            package_name: issue.repo,
+            org: issue.owner,
+            package_version_id: foundVersion.id,
+          })
+          .then(() => {
+            console.log(`${versionStr} deleted! :)`);
+          })
+          .catch((err) => {
+            console.log(`Can't delete version ${versionStr} :(`, err);
+          });
       })
     );
   }
