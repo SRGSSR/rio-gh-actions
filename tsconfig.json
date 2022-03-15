@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES6",
+    "moduleResolution": "node",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "rootDir": "."
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

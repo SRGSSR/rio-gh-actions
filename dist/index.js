@@ -8299,6 +8299,86 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 4177:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __importDefault(__nccwpck_require__(2186));
+const github_1 = __importDefault(__nccwpck_require__(5438));
+const REGEX = /(0\.0\.0-dev\.([a-zA-Z0-9)]{7}))/g;
+try {
+    function run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const githubToken = core_1.default.getInput("GITHUB_TOKEN");
+            const packagesToken = core_1.default.getInput("PACKAGES_TOKEN");
+            console.log({
+                githubToken,
+                packagesToken,
+                packagesTokenMissing: !packagesToken,
+            });
+            const octokit = github_1.default.getOctokit(githubToken);
+            const { issue } = github_1.default.context;
+            const commentsQuery = yield octokit.rest.issues.listComments({
+                owner: issue.owner,
+                repo: issue.repo,
+                issue_number: issue.number,
+            });
+            const comments = commentsQuery.data.map((item) => item.body);
+            console.log({ comments });
+            const versionNamesToDelete = [];
+            comments.forEach((c) => {
+                const res = c === null || c === void 0 ? void 0 : c.match(REGEX);
+                if (res) {
+                    versionNamesToDelete.push(...res);
+                }
+            });
+            console.log({ versionNamesToDelete });
+            if (!versionNamesToDelete.length)
+                return;
+            const allVersions = (yield octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                package_type: "npm",
+                package_name: issue.repo,
+                org: issue.owner,
+            })).data;
+            yield Promise.all(versionNamesToDelete.map((versionName) => {
+                const foundVersion = allVersions.find((v) => v.name === versionName);
+                if (!foundVersion) {
+                    console.log(`Version with name ${versionName} not found.`);
+                    return;
+                }
+                console.log(`Deleting version ${versionName}/${foundVersion.id} ...`);
+                return octokit.rest.packages.deletePackageVersionForOrg({
+                    package_type: "npm",
+                    package_name: issue.repo,
+                    org: issue.owner,
+                    package_version_id: foundVersion.id,
+                });
+            }));
+        });
+    }
+    run();
+}
+catch (error) {
+    core_1.default.setFailed(error instanceof Error ? error.message : error);
+}
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -8465,75 +8545,12 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
-
-const REGEX = /(0\.0\.0-dev\.([a-zA-Z0-9)]{7}))/g;
-
-try {
-  async function run() {
-    const githubToken = core.getInput("GITHUB_TOKEN");
-    const packagesToken = core.getInput("PACKAGES_TOKEN");
-    console.log({
-      githubToken,
-      packagesToken,
-      packagesTokenMissing: !packagesToken,
-    });
-
-    const octokit = github.getOctokit(githubToken);
-    const { issue } = github.context;
-
-    const commentsQuery = await octokit.rest.issues.listComments({
-      owner: issue.owner,
-      repo: issue.repo,
-      issue_number: issue.number,
-    });
-
-    const comments = commentsQuery.data.map((item) => item.body);
-    console.log({ comments });
-
-    const versionsToDelete = [];
-    comments.forEach((c) => {
-      const res = c.match(REGEX);
-      if (res) {
-        versionsToDelete.push(...res);
-      }
-    });
-
-    console.log({ versionsToDelete });
-
-    await Promise.all(
-      versionsToDelete.map((version) =>
-        octokit.rest.packages
-          .getPackageVersionForOrganization({
-            package_type: "npm",
-            package_name: issue.repo,
-            org: issue.owner,
-            package_version_id: version,
-          })
-          .then(({ data: package }) => {
-            console.log(`Deleting version ${version}/${package.id} ...`);
-            return octokit.rest.packages.deletePackageVersionForOrg({
-              package_type: "npm",
-              package_name: issue.repo,
-              org: issue.owner,
-              package_version_id: package.id,
-            });
-          })
-      )
-    );
-  }
-
-  run();
-} catch (error) {
-  core.setFailed(error.message);
-}
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(4177);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;

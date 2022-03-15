@@ -1,13 +1,13 @@
 {
   "name": "rio-clean-dev-releases-action",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Clean dev releases from merged PRs",
   "main": "dist/index.js",
   "repository": "git@github.com:SRGSSR/rio-clean-dev-releases-action.git",
   "author": "Léon Chabbey <leon.chabbey@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "ncc build index.js --license licenses.txt"
+    "build": "ncc build index.ts --license licenses.txt"
   },
   "config": {
     "ghooks": {
@@ -19,7 +19,9 @@
     "@actions/github": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^17.0.21",
     "@vercel/ncc": "^0.33.3",
-    "ghooks": "^2.0.4"
+    "ghooks": "^2.0.4",
+    "typescript": "^4.6.2"
   }
 }
