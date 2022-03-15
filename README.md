@@ -2,10 +2,6 @@
 
 ## Release new version
 
-1) Make sure you have `@vercel/ncc` installed globally.
-    - `npm i -g @vercel/ncc` if not the case.
-1) Compile the `index.js` file.
-    - `ncc build index.js --license licenses.txt`
 1) Bump version in `package.json` file.
 1) Stage the new/edited files.
     - `git add .` or else
