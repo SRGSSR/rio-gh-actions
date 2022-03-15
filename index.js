@@ -5,6 +5,7 @@ try {
   async function run() {
     const githubToken = core.getInput("GITHUB_TOKEN");
     const packagesToken = core.getInput("PACKAGES_TOKEN");
+    console.log({ githubToken, packagesToken });
 
     const octokit = github.getOctokit(githubToken);
     const { issue } = github.context;
