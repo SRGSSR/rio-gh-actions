@@ -1,5 +1,5 @@
-import core from "@actions/core";
-import github from "@actions/github";
+import * as core from "@actions/core";
+import * as github from "@actions/github";
 
 const REGEX = /(0\.0\.0-dev\.([a-zA-Z0-9)]{7}))/g;
 
