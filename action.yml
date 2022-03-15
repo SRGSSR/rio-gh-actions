@@ -1,5 +1,5 @@
 name: "Clean dev releases"
-description: "Clean dev releases from a merged PR"
+description: "Clean dev releases of a merged PR"
 inputs:
   GITHUB_TOKEN:
     description: "The Github Secret Token"
