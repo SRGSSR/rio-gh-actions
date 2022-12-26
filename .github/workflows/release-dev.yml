@@ -1,0 +1,75 @@
+name: Dev release
+
+on:
+  workflow_call:
+    secrets:
+      pullPrivatePackagesPAT:
+        required: true
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    outputs:
+      package-version: ${{ steps.set-package-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: Set GITHUB_PAT in env for pulling private packages
+        run: echo "GITHUB_PAT=${{ secrets.pullPrivatePackagesPAT }}" >> $GITHUB_ENV
+      - name: 'Yarn and setup'
+        run: |
+          cat package.json
+          yarn
+          yarn build
+          cp package.json ./dist/package.json
+      - name: Set PACKAGE_VERSION in env
+        run: echo "PACKAGE_VERSION=0.0.0-dev.$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Set new PACKAGE_VERSION in job outputs
+        id: set-package-version
+        run: echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+      - name: Npm version
+        run: |
+          echo $PACKAGE_VERSION
+          npm version $PACKAGE_VERSION --no-git-tag-version
+          npm pack
+        working-directory: ./dist
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: './dist/*.tgz'
+
+  publish:
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'srgssr'
+    steps:
+      - name: Upload
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+          scope: '@srgssr'
+      - run: echo "@srgssr:registry=https://npm.pkg.github.com" >> .npmrc
+      - run: npm publish $(ls *.tgz)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  comment-version-in-pr:
+    runs-on: ubuntu-latest
+    needs: [build-and-package, publish]
+    steps:
+      - name: Downcase repository name
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - name: Comment with version
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: '"@${{ env.REPO }}": "${{ needs.build-and-package.outputs.package-version }}",'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

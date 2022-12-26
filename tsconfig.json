@@ -9,9 +9,10 @@
     ],
     "strict": true,
     "esModuleInterop": true,
-    "rootDir": "."
+    "rootDir": "./src",
+    "outDir": "./lib"
   },
-  "include": [
-    "**/*.ts"
+  "exclude": [
+    "node_modules"
   ]
 }

@@ -1,0 +1,12 @@
+name: 'Clean dev releases'
+description: "Clean repo's dev releases before a specified date"
+inputs:
+  untilTimestamp:
+    description: The timestamp up to which versions should be deleted
+    required: true
+  githubToken:
+    description: 'The Github Secret Token'
+    required: true
+runs:
+  using: 'node16'
+  main: '../lib/clean-dev-releases.js'

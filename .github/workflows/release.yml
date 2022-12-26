@@ -1,0 +1,98 @@
+# This workflow is maintained in https://github.com/SRGSSR/rio-tools/github-workflows
+# If you modify functionalities of this file, do it over there. And then update all repos
+# using this workflow.
+
+name: Release
+
+on:
+  workflow_call:
+    secrets:
+      pullPrivatePackagesPAT:
+        required: true
+      repoAccessPAT:
+        required: true
+
+jobs:
+  bump-version:
+    if: ${{ github.actor != 'rts-devops' && github.event_name != 'workflow_dispatch' }}
+    name: 'Bump package.json version and push the update with tag'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump-step.outputs.newTag }}
+    steps:
+      - name: 'Checkout source code'
+        uses: 'actions/checkout@v3'
+        with:
+          token: ${{ secrets.repoAccessPAT }}
+      - name: 'Automated Version Bump'
+        id: bump-step
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          minor-wording: 'add,new'
+          major-wording: 'major,breaking change'
+          tag-prefix: ''
+      - name: 'Output Step'
+        run: echo "new tag ${{ steps.bump-step.outputs.newTag }}"
+
+  build-and-package:
+    name: 'Build and upload artifact'
+    needs: bump-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: git pull origin master
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: Set GITHUB_PAT in env for pulling private packages
+        run: echo "GITHUB_PAT=${{ secrets.pullPrivatePackagesPAT }}" >> $GITHUB_ENV
+      - name: 'Yarn and setup'
+        run: |
+          cat package.json
+          yarn
+          yarn build
+          cp package.json ./dist/package.json
+      - name: 'Npm pack'
+        run: npm pack
+        working-directory: ./dist
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: './dist/*.tgz'
+
+  publish:
+    name: 'Publish to GitHub Packages'
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'srgssr'
+    steps:
+      - name: Upload
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+          scope: '@srgssr'
+      - run: npm publish $(ls *.tgz)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-develop:
+    name: 'Update develop with new version'
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'Test'
+        run: git branch -al
+      - name: Merge master -> develop
+        uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ secrets.repoAccessPAT }}
+          source_ref: ${{ github.ref }}
+          target_branch: 'develop'
+          commit_message_template: 'ci: update develop after master release'

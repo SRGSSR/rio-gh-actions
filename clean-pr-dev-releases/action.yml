@@ -1,0 +1,9 @@
+name: "Clean PR's dev releases"
+description: 'Clean dev releases of a merged PR'
+inputs:
+  githubToken:
+    description: 'The Github Secret Token'
+    required: true
+runs:
+  using: 'node16'
+  main: '../lib/clean-pr-dev-releases.js'

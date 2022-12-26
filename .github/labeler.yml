@@ -1,0 +1,39 @@
+version: v1
+
+labels:
+  - label: 'breaking'
+    sync: true
+    matcher:
+      title: 'breaking'
+      commits: 'breaking'
+      body: 'breaking'
+
+  - label: 'feat'
+    sync: true
+    matcher:
+      title: '^feat:.*'
+      branch: '^feature/.*'
+
+  - label: 'refactor'
+    sync: true
+    matcher:
+      title: '^refactor:.*'
+      branch: '^refactor/.*'
+
+  - label: 'fix'
+    sync: true
+    matcher:
+      title: '^fix:.*'
+      branch: '^fix/.*'
+
+  - label: 'ci'
+    sync: true
+    matcher:
+      files:
+        all: ['!src/**']
+
+checks:
+  - context: 'Merge check'
+    description: 'Disable merging when blockers label are set'
+    labels:
+      none: ['invalid', 'wont fix', 'duplicate', 'question', 'wip', 'to test']

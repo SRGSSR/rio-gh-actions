@@ -1,9 +1,0 @@
-name: "Clean dev releases"
-description: "Clean dev releases of a merged PR"
-inputs:
-  GITHUB_TOKEN:
-    description: "The Github Secret Token"
-    required: true
-runs:
-  using: "node16"
-  main: "dist/index.js"
