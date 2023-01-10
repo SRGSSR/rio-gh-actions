@@ -13,6 +13,8 @@ jobs:
       package-version: ${{ steps.set-package-version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js 14.x
         uses: actions/setup-node@v3
         with:
