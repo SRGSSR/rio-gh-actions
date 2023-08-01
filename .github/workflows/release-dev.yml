@@ -15,10 +15,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Use Node.js 14.x
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
       - name: Set GITHUB_PAT in env for pulling private packages
         run: echo "GITHUB_PAT=${{ secrets.pullPrivatePackagesPAT }}" >> $GITHUB_ENV
       - name: 'Yarn and setup'
@@ -55,7 +55,7 @@ jobs:
           name: package
       - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           registry-url: https://npm.pkg.github.com/
           scope: '@srgssr'
       - run: echo "@srgssr:registry=https://npm.pkg.github.com" >> .npmrc
