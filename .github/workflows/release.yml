@@ -40,7 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: git pull origin master
       - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
@@ -80,19 +79,3 @@ jobs:
       - run: npm publish $(ls *.tgz)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  update-develop:
-    name: 'Update develop with new version'
-    needs: publish
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: 'Test'
-        run: git branch -al
-      - name: Merge master -> develop
-        uses: everlytic/branch-merge@1.1.2
-        with:
-          github_token: ${{ secrets.repoAccessPAT }}
-          source_ref: ${{ github.ref }}
-          target_branch: 'develop'
-          commit_message_template: 'ci: update develop after master release'
