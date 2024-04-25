@@ -31,8 +31,6 @@ jobs:
           minor-wording: 'add,new'
           major-wording: 'major,breaking change'
           tag-prefix: ''
-      - name: 'Output Step'
-        run: echo "new tag ${{ steps.bump-step.outputs.newTag }}"
 
   build-and-package:
     name: 'Build and upload artifact'
@@ -40,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
       - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
